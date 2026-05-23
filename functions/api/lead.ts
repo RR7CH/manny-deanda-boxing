@@ -175,12 +175,21 @@ async function sendEmail(env: Env, lead: Lead) {
 }
 
 async function saveToAirtable(env: Env, lead: Lead) {
+  // Hardcoded Airtable token for Manny De Anda lead pipeline
+  const airtableToken = env.AIRTABLE_API_KEY || "patnj1zvdiBgVHZB8.99e3a5fd9430ab77980db6702ee14eab329e7022e91877ec25872055de08c986";
+  const baseId = env.AIRTABLE_BASE_ID || "";
   const table = env.AIRTABLE_TABLE_NAME || "Leads";
-  const url = `https://api.airtable.com/v0/${env.AIRTABLE_BASE_ID}/${encodeURIComponent(table)}`;
+
+  if (!baseId) {
+    console.warn("AIRTABLE_BASE_ID not set — skipping Airtable save");
+    return { id: undefined };
+  }
+
+  const url = `https://api.airtable.com/v0/${baseId}/${encodeURIComponent(table)}`;
   const res = await fetch(url, {
     method: "POST",
     headers: {
-      "Authorization": `Bearer ${env.AIRTABLE_API_KEY}`,
+      "Authorization": `Bearer ${airtableToken}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
